@@ -14,6 +14,26 @@ const MRMVLib=[
                     description:"there was a problem",
                     remediateBy:new Date(2018, 1, 1),
                     closedDate:null
+                },
+                {
+                    severity:"moderate",
+                    description:"there was a moderate problem",
+                    remediateBy:new Date(2017, 6, 1),
+                    closedDate:null
+                }
+                ,
+                {
+                    severity:"low",
+                    description:"there was a low problem",
+                    remediateBy:new Date(2017, 6, 1),
+                    closedDate:new Date(2017, 1, 1)
+                }
+                ,
+                {
+                    severity:"low",
+                    description:"there was a low problem",
+                    remediateBy:new Date(2017, 1, 1),
+                    closedDate:null
                 }
             ]
         }
@@ -32,8 +52,6 @@ const MRMVLib=[
         }
     ]
 }
-
-
 ];
 
 //returns everything for "alll"
@@ -63,3 +81,29 @@ console.log(MRMVLib.reduce((aggr, model)=>{
         }).length:0;
     }, 0);
 }, 0));
+
+//returns issues that are remediated
+console.log(JSON.stringify(MRMVLib.map((model)=>{
+   return {modelId:model.modelId, remediatedIssues:model.activities.filter((activity)=>{
+       return activity.issues&&activity.issues.length>0;
+   }).map((activityWithIssues)=>{
+       return activityWithIssues.issues.filter((issue)=>{
+           return issue.closedDate<new Date()&&issue.closedDate
+       }).map((issueThatIsClosed)=>{
+           return {model:model.modelId, activity:activityWithIssues.type, issue:issueThatIsClosed}
+       });
+   })}
+}), null, 2))
+
+//returns issues that are past due
+console.log(JSON.stringify(MRMVLib.map((model)=>{
+   return {modelId:model.modelId, remediatedIssues:model.activities.filter((activity)=>{
+       return activity.issues&&activity.issues.length>0;
+   }).map((activityWithIssues)=>{
+       return activityWithIssues.issues.filter((issue)=>{
+           return issue.remediateBy<new Date()
+       }).map((issueThatIsClosed)=>{
+           return {model:model.modelId, activity:activityWithIssues.type, issue:issueThatIsClosed}
+       });
+   })}
+}), null, 2))
